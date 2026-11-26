@@ -1,0 +1,29 @@
+# SSH private keys
+*.pem
+*.key
+id_rsa
+id_ed25519
+keys/
+
+# Credentials and environment variables
+.env
+.env.*
+!.env.example
+.aws/
+credentials
+
+# Local infrastructure information
+.aws-resources.env
+inventory.local.ini
+
+# Ansible temporary files
+*.retry
+.ansible/
+*.log
+
+# macOS
+.DS_Store
+
+# Editor files
+.vscode/
+.idea/

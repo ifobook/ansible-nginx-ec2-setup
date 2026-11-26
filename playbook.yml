@@ -1,0 +1,52 @@
+---
+- name: Deploy and configure Nginx web server
+  hosts: webservers
+  become: true
+  gather_facts: true
+
+  tasks:
+    - name: Update APT package cache
+      ansible.builtin.apt:
+        update_cache: true
+        cache_valid_time: 3600
+
+    - name: Upgrade installed system packages
+      ansible.builtin.apt:
+        upgrade: safe
+
+    - name: Install Nginx
+      ansible.builtin.apt:
+        name: nginx
+        state: present
+
+    - name: Start and enable Nginx service
+      ansible.builtin.service:
+        name: nginx
+        state: started
+        enabled: true
+
+    - name: Deploy custom HTML landing page
+      ansible.builtin.copy:
+        src: files/index.html
+        dest: /var/www/html/index.html
+        owner: root
+        group: root
+        mode: '0644'
+
+    - name: Validate Nginx configuration
+      ansible.builtin.command: nginx -t
+      changed_when: false
+
+    - name: Verify Nginx HTTP response
+      ansible.builtin.uri:
+        url: http://127.0.0.1
+        status_code: 200
+        return_content: true
+      register: nginx_response
+      changed_when: false
+
+    - name: Verify custom landing page
+      ansible.builtin.assert:
+        that:
+          - "'Ansible Nginx EC2 Setup' in nginx_response.content"
+        success_msg: "Nginx and the custom landing page are working."
